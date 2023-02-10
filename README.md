@@ -2,7 +2,7 @@
 
 ## Usage
 
-Set the following environment variable before you start: 
+Modify `.env` to set the following environment variable before you start: 
 
 |          Env Var         |  Spec  |
 |:------------------------:|:------:|
@@ -11,7 +11,7 @@ Set the following environment variable before you start:
 |`FORTIVPN_SRV`| Server Address (host:port) |
 |`FORTIVPN_USR`| VPN Username |
 
-When starting your container at the very beginning, add `--device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
+When starting your container at the very beginning, add `--env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
 
 No external volume is required. This container only works for AMD64, since FortiNet does NOT offer other architecture.
 
