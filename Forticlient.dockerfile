@@ -13,12 +13,11 @@ WORKDIR /tmp
 # Installation of Software
 ADD fortirun.expect /
 RUN apt update -y && \
-    apt install curl wget sudo gnupg2 gzip xz-utils gosu openssl expect ca-certificates -y && \
+    apt install curl wget sudo gnupg2 gzip xz-utils gosu openssl expect ca-certificates procps -y && \
     wget https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-noarch.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && rm /tmp/s6-overlay-noarch.tar.xz && \
     wget https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-x86_64.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz && rm /tmp/s6-overlay-x86_64.tar.xz && \
-    rm -rf /etc/s6-overlay/s6-rc.d/* && \
     wget -O - https://repo.fortinet.com/repo/7.0/debian/DEB-GPG-KEY | sudo apt-key add - && \
     curl -o /tmp/vpnagent.deb -L -k https://links.fortinet.com/forticlient/deb/vpnagent && \
     apt install -y /tmp/vpnagent.deb && \
@@ -29,7 +28,9 @@ RUN apt update -y && \
     mv /tmp/gost-linux-amd64-2.11.5 /usr/bin/gost && \
     chmod +x /usr/bin/gost /fortirun.expect
 # Now go ahead, add service script
-ADD s6-rc.d /etc/s6-overlay/s6-rc.d
+ADD s6-rc.d/fortivpn /etc/s6-overlay/s6-rc.d/fortivpn
+ADD s6-rc.d/gost /etc/s6-overlay/s6-rc.d/gost
+ADD s6-rc.d/user/contents.d/gost /etc/s6-overlay/s6-rc.d/user/contents.d/gost
 # Now run
 EXPOSE 10800
 ENTRYPOINT ["/init"]
