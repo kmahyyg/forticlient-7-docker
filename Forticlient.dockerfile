@@ -13,7 +13,7 @@ WORKDIR /tmp
 # Installation of Software
 ADD fortirun.expect /
 RUN apt update -y && \
-    apt install curl wget sudo gnupg2 gzip xz-utils gosu openssl expect ca-certificates procps -y && \
+    apt install curl wget sudo gnupg2 gzip xz-utils gosu openssl expect ca-certificates procps tree -y && \
     wget https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-noarch.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && rm /tmp/s6-overlay-noarch.tar.xz && \
     wget https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-x86_64.tar.xz && \

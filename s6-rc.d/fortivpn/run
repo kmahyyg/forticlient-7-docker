@@ -1,2 +1,2 @@
 #!/bin/execlineb -P
-expect /fortirun.expect
+/usr/bin/expect /fortirun.expect
