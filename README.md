@@ -2,7 +2,7 @@
 
 ## Usage
 
-Modify `.env` to set the following environment variable before you start: 
+Copy and Modify `.env.example` to `.env` then set the following environment variable before you start: 
 
 |          Env Var         |  Spec  |
 |:------------------------:|:------:|
