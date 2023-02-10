@@ -17,11 +17,13 @@ No external volume is required. This container only works for AMD64, since Forti
 
 SOCKS5 proxy is exposed on 10080 port, without any authentication. Please do NOT expose it on public internet.
 
-After it works, just go access network via socks5 10080.
+After it works, just go access network via socks5 10080, `-p 10080:10080`.
 
 Note: Currently, it just meet my personal needs, you should modify `fortirun.expect` if you need certificate authentication.
 
 2FA authentication may not be supported. Possibly, you could read a file contains current TOTP and modify `fortirun.expect` to read it.
+
+So finally your command should be like: `sudo docker run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN -i -t -p 10080:10080 kmahyyg/fortivpn`
 
 ## Credit
 
