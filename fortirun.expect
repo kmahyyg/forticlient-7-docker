@@ -1,0 +1,18 @@
+#!/usr/bin/expect -f
+
+set pwdNotice "password:"
+set certNotice "Confirm (y/n) \[default=n\]:"
+
+set certAnswer "n"
+set pwdAnswer $::env(FORTIVPN_PASSWD)
+
+if { [info exist ::env(ALLOW_INSECURE)] } {
+    set certAnswer "y"
+}
+
+spawn /opt/forticlient/vpn -s $::env(FORTIVPN_SRV) -u $::env(FORTIVPN_USR) -p
+expect {
+    "$pwdNotice" { send "$pwdAnswer\n"; exp_continue }
+    -exact "$certNotice" { send "$certAnswer\n"; interact }
+}
+
