@@ -8,6 +8,7 @@ LABEL VERSION="7.0.7.0246-VPN_ONLY-deb"
 # Environment
 ENV FORTIVPN_CLI="/opt/forticlient/vpn"
 ENV DEBIAN_FRONTEND=noninteractive
+ENV S6_KEEP_ENV=1
 # Do not modify
 WORKDIR /tmp
 # Installation of Software
