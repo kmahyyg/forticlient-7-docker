@@ -29,7 +29,7 @@ RUN apt update -y && \
     mv /tmp/gost-linux-amd64-2.11.5 /usr/bin/gost && \
     chmod +x /usr/bin/gost /fortirun.expect
 # Now go ahead, add service script
-ADD s6-rc.d /etc/s6-overlay
+ADD s6-rc.d /etc/s6-overlay/s6-rc.d
 # Now run
 EXPOSE 10800
 ENTRYPOINT ["/init"]
