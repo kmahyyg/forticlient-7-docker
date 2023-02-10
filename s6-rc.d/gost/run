@@ -1,2 +1,2 @@
-#!/bin/execlineb -P
+#!/command/execlineb -P
 /usr/bin/gost -L "socks5://0.0.0.0:10800"
