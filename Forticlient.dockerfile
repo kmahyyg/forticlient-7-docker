@@ -16,6 +16,7 @@ LABEL PRIVILEGE_REQUEST="--device=/dev/net/tun --cap-add=NET_ADMIN --security-op
 LABEL ENV_REQUEST="FORTIVPN_PASSWD,ALLOW_INSECURE,FORTIVPN_SRV,FORTIVPN_USR"
 LABEL DEV_DEPENDENCIES="wget procps tree gosu openssl sudo vim xxd"
 LABEL VERSION="7.0.7.0246-VPN_ONLY-deb"
+LABEL org.opencontainers.image.source="https://github.com/kmahyyg/forticlient-7-podman"
 # Environment
 ENV FORTIVPN_CLI="/opt/forticlient/vpn"
 ENV DEBIAN_FRONTEND=noninteractive
