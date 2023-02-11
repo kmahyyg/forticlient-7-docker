@@ -21,7 +21,7 @@ RUN apt update -y && \
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && rm /tmp/s6-overlay-noarch.tar.xz && \
     curl -L -O https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-x86_64.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz && rm /tmp/s6-overlay-x86_64.tar.xz && \
-    curl -L -o - https://repo.fortinet.com/repo/7.0/debian/DEB-GPG-KEY | sudo apt-key add - && \
+    curl -L -o - https://repo.fortinet.com/repo/7.0/debian/DEB-GPG-KEY | apt-key add - && \
     curl -o /tmp/vpnagent.deb -L https://links.fortinet.com/forticlient/deb/vpnagent && \
     apt install -y /tmp/vpnagent.deb && \
     useradd -u 1000 -U -m fortiuser && \
