@@ -1,4 +1,4 @@
-FROM golang:1.20-bullseye AS gobuilder
+FROM docker.io/library/golang:1.20-bullseye AS gobuilder
 WORKDIR /codes
 ENV CGO_ENABLED=0
 ADD gosrc /codes/gosrc/
@@ -8,7 +8,7 @@ RUN go mod download && \
     go build -o go-fortivpn-daemon -trimpath -ldflags='-s -w' ./cmd/main.go
 
 
-FROM debian:stable
+FROM docker.io/library/debian:stable
 # Author Notes
 LABEL ARCH="amd64"
 LABEL MAINTAINER="kmahyyg <16604643+kmahyyg@users.noreply.github.com>"
