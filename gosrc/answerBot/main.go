@@ -86,7 +86,7 @@ func main() {
 	if err := fortiC.Init(); err != nil {
 		log.Fatalln(err)
 	}
-
+	var err error
 	// Debug:
 	log.Printf("config: %+v \n", *fortiC)
 	// new subprocess
@@ -94,20 +94,26 @@ func main() {
 	// stderr
 	stdErrPipeR, stdErrPipeW := io.Pipe()
 	vpnProg.Stderr = stdErrPipeW
+	defer stdErrPipeR.Close()
+	defer stdErrPipeW.Close()
 	// stdin
 	stdInPipeR, stdInPipeW := io.Pipe()
 	vpnProg.Stdin = stdInPipeR
-	_, err := stdInPipeW.Write([]byte(fortiC.Password + "\n"))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("pre-entered password to prevent from coroutine missing.")
+	defer stdInPipeW.Close()
+	defer stdInPipeR.Close()
 	// stdout
 	stdOutPipeR, stdOutPipeW := io.Pipe()
 	vpnProg.Stdout = stdOutPipeW
+	defer stdOutPipeW.Close()
+	defer stdOutPipeR.Close()
 	// start input and output data
 	// stdout, stdin
 	go func() {
+		_, err := stdInPipeW.Write([]byte(fortiC.Password + "\n"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println("pre-entered password to prevent from coroutine missing.")
 		scnr := bufio.NewScanner(stdOutPipeR)
 		scnr.Split(bufio.ScanWords)
 		for scnr.Scan() {
@@ -161,7 +167,7 @@ func main() {
 	log.Println("received signal of killing vpn process, now clean up.")
 	err = vpnProg.Process.Kill()
 	if err != nil {
-		log.Println(err)
+		log.Println("process kill err: ", err)
 	}
 	log.Println("vpn process killed. exit.")
 }
