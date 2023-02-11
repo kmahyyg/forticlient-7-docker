@@ -92,15 +92,12 @@ func main() {
 	// new subprocess
 	vpnProg := exec.Command(fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
 	// stderr
-	vpnStdErr, err := vpnProg.StderrPipe()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("stderr pipe got.")
+	stdErrPipeR, stdErrPipeW := io.Pipe()
+	vpnProg.Stderr = stdErrPipeW
 	// stdin
 	stdInPipeR, stdInPipeW := io.Pipe()
 	vpnProg.Stdin = stdInPipeR
-	_, err = io.WriteString(stdInPipeW, fortiC.Password+"\n")
+	_, err := stdInPipeW.Write([]byte(fortiC.Password + "\n"))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -117,7 +114,7 @@ func main() {
 			curLine := scnr.Bytes()
 			log.Println("from stdout scanner: ", string(curLine))
 			if bytes.Contains(curLine, []byte("[default=n]:Confirm")) {
-				_, _ = io.WriteString(stdInPipeW, fortiC.insecureAns+"\n")
+				_, _ = stdInPipeW.Write([]byte(fortiC.insecureAns + "\n"))
 				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
 				break
 			}
@@ -132,7 +129,7 @@ func main() {
 	}()
 	// stderr
 	go func() {
-		_, err = io.Copy(os.Stderr, vpnStdErr)
+		_, err = io.Copy(os.Stderr, stdErrPipeR)
 		if errors.Is(err, io.EOF) {
 			return
 		} else if err != nil {
