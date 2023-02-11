@@ -13,8 +13,6 @@ ENV S6_KEEP_ENV=1
 # Do not modify
 WORKDIR /tmp
 # Installation of Software
-ADD fortirun.expect /
-ADD resolv.conf /etc/resolv.conf
 RUN apt update -y && \
     apt install curl gnupg2 gzip xz-utils expect ca-certificates iproute2 -y && \
     curl -L -O https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-noarch.tar.xz && \
@@ -29,11 +27,14 @@ RUN apt update -y && \
     curl -L -O https://github.com/ginuerzh/gost/releases/download/v2.11.5/gost-linux-amd64-2.11.5.gz && \
     gunzip /tmp/gost-linux-amd64-2.11.5.gz && \
     mv /tmp/gost-linux-amd64-2.11.5 /usr/bin/gost && \
-    chmod +x /usr/bin/gost /fortirun.expect
+    chmod +x /usr/bin/gost
 # Now go ahead, add service script
+ADD fortirun.expect /
+ADD resolv.conf /etc/resolv.conf
 ADD s6-rc.d/fortivpn /etc/s6-overlay/s6-rc.d/fortivpn
 ADD s6-rc.d/gost /etc/s6-overlay/s6-rc.d/gost
 ADD s6-rc.d/user/contents.d/gost /etc/s6-overlay/s6-rc.d/user/contents.d/gost
+RUN chmod +x /fortirun.expect
 # Now run
 EXPOSE 10800
 ENTRYPOINT ["/init"]

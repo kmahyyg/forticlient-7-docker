@@ -10,6 +10,8 @@ if { [info exist ::env(ALLOW_INSECURE)] } {
     set certAnswer "y"
 }
 
+close_on_eof 0
+
 spawn /opt/forticlient/vpn -s $::env(FORTIVPN_SRV) -u $::env(FORTIVPN_USR) -p
 expect {
     "$pwdNotice" { send "$pwdAnswer\n"; exp_continue }
