@@ -145,6 +145,16 @@ func main() {
 	// handle signal
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL)
+	// handle exit
+	// wait until close
+	go func() {
+		err := vpnProg.Wait()
+		if err != nil {
+			log.Println("vpnprog unexpected exit, err: ", err)
+		}
+		log.Println("vpnprog exit unexpectedly.")
+		sigChan <- syscall.SIGTERM
+	}()
 	<-sigChan
 	log.Println("received signal of killing vpn process, now clean up.")
 	err = vpnProg.Process.Kill()

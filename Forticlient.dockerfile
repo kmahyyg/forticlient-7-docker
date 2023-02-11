@@ -39,7 +39,7 @@ RUN apt update -y && \
     mv /tmp/gost-linux-amd64-2.11.5 /usr/bin/gost && \
     chmod +x /usr/bin/gost
 # Now go ahead, add service script
-COPY --from=gobuilder /codes/go-fortivpn-daemon /usr/bin/go-fortivpn-daemon
+COPY --from=gobuilder /codes/gosrc/go-fortivpn-daemon /usr/bin/go-fortivpn-daemon
 ADD resolv.conf /etc/resolv.conf
 ADD s6-rc.d/fortivpn /etc/s6-overlay/s6-rc.d/fortivpn
 ADD s6-rc.d/gost /etc/s6-overlay/s6-rc.d/gost
