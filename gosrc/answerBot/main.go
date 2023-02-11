@@ -5,7 +5,6 @@ import (
 	"bytes"
 	_ "embed"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -83,10 +82,11 @@ func init() {
 
 func main() {
 	// start
-	log.Println(versionStr)
+	log.Println("version: ", versionStr)
 	if err := fortiC.Init(); err != nil {
 		log.Fatalln(err)
 	}
+	log.Printf("config: %v \n", *fortiC)
 	// new subprocess
 	vpnProg := exec.Command(fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
 	vpnStdErr, err := vpnProg.StderrPipe()
@@ -104,33 +104,32 @@ func main() {
 		log.Fatalln(err)
 	}
 	log.Println("stdin pipe got.")
-	// start new process
-	err = vpnProg.Start()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("vpn process started.")
 	// start input and output data
 	// stdout, stdin
 	go func() {
 		scnr := bufio.NewScanner(vpnStdOut)
-		scnr.Split(bufio.ScanLines)
+		scnr.Split(bufio.ScanWords)
 		for scnr.Scan() {
 			curLine := scnr.Bytes()
+			log.Println("scanned output from stdout: ", string(curLine))
 			// never close fxxking stdin!
 			if bytes.HasPrefix(curLine, []byte("password:")) {
-				_, _ = vpnStdIn.Write([]byte(fortiC.Password + "\n"))
+				_, _ = io.WriteString(vpnStdIn, fortiC.Password+"\n")
 				log.Println("write password to vpn cli stdin.")
-				fmt.Println(string(curLine))
 				continue
 			}
-			if bytes.Contains(curLine, []byte("Confirm (y/n) [default=n]:")) {
-				_, _ = vpnStdIn.Write([]byte(fortiC.insecureAns + "\n"))
+			if bytes.Contains(curLine, []byte("[default=n]:Confirm")) {
+				_, _ = io.WriteString(vpnStdIn, fortiC.insecureAns+"\n")
 				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
-				fmt.Println(string(curLine))
-				continue
+				break
 			}
-			fmt.Println(string(curLine))
+		}
+		log.Println("scan input completed, all answer finished. Now direct copy stdout and show.")
+		_, err = io.Copy(os.Stdout, vpnStdOut)
+		if errors.Is(err, io.EOF) {
+			return
+		} else {
+			log.Println("Error for Stdout Redirect:", err)
 		}
 	}()
 	// stderr
@@ -139,12 +138,18 @@ func main() {
 		if errors.Is(err, io.EOF) {
 			return
 		} else {
-			log.Println("Error for Stdout Redirect:", err)
+			log.Println("Error for StdoErr Redirect:", err)
 		}
 	}()
+	// start new process
+	err = vpnProg.Start()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("vpn process started.")
 	// handle signal
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
 	// handle exit
 	// wait until close
 	go func() {

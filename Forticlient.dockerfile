@@ -5,7 +5,7 @@ ADD gosrc /codes/gosrc/
 WORKDIR /codes/gosrc
 RUN go mod download && \
     go mod tidy && \
-    go build -o go-fortivpn-daemon -trimpath -ldflags='-s -w' ./cmd/main.go
+    go build -o go-fortivpn-daemon -trimpath -ldflags='-s -w' ./answerBot/main.go
 
 
 FROM docker.io/library/debian:stable
