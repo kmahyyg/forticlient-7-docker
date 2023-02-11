@@ -15,7 +15,7 @@ Copy and Modify `.env.example` to `.env` then set the following environment vari
 |`FORTIVPN_SRV`| Server Address (host:port) |
 |`FORTIVPN_USR`| VPN Username |
 |`GOST_USERNAME`| Gost Username |
-|`GOST_PASSWORD`| Gost Password |
+|`GOST_PASSWD`| Gost Password |
 
 When starting your container at the very beginning, add `--dns=none --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
 
