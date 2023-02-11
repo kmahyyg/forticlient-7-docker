@@ -87,8 +87,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Debug: log.Printf("config: %+v \n", *fortiC)
-
+	// Debug:
+	log.Printf("config: %+v \n", *fortiC)
 	// new subprocess
 	vpnProg := exec.Command(fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
 	vpnStdErr, err := vpnProg.StderrPipe()
@@ -118,6 +118,7 @@ func main() {
 		scnr.Split(bufio.ScanWords)
 		for scnr.Scan() {
 			curLine := scnr.Bytes()
+			log.Println("from stdout scanner: ", string(curLine))
 			if bytes.Contains(curLine, []byte("[default=n]:Confirm")) {
 				_, _ = io.WriteString(vpnStdIn, fortiC.insecureAns+"\n")
 				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
