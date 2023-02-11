@@ -12,13 +12,9 @@ FROM docker.io/library/debian:stable
 # Author Notes
 LABEL ARCH="amd64"
 LABEL MAINTAINER="kmahyyg <16604643+kmahyyg@users.noreply.github.com>"
-LABEL PRIVILEGE_REQUEST="--device=/dev/net/tun --cap-add=NET_ADMIN --security-opt seccomp=unconfined"
-LABEL ENV_REQUEST="FORTIVPN_PASSWD,ALLOW_INSECURE,FORTIVPN_SRV,FORTIVPN_USR"
-LABEL DEV_DEPENDENCIES="wget procps tree gosu openssl sudo vim xxd"
-LABEL VERSION="7.0.7.0246-VPN_ONLY-deb"
-LABEL org.opencontainers.image.source="https://github.com/kmahyyg/forticlient-7-podman"
-# Environment
+# Runtime
 ENV FORTIVPN_CLI="/opt/forticlient/vpn"
+# Constant Environment
 ENV DEBIAN_FRONTEND=noninteractive
 ENV S6_KEEP_ENV=1
 # Do not modify
@@ -46,6 +42,12 @@ ADD s6-rc.d/fortivpn /etc/s6-overlay/s6-rc.d/fortivpn
 ADD s6-rc.d/gost /etc/s6-overlay/s6-rc.d/gost
 ADD s6-rc.d/user/contents.d/gost /etc/s6-overlay/s6-rc.d/user/contents.d/gost
 RUN chmod +x /usr/bin/go-fortivpn-daemon
+# Finally notes
+LABEL org.opencontainers.image.source="https://github.com/kmahyyg/forticlient-7-podman"
+LABEL PRIVILEGE_REQUEST="--device=/dev/net/tun --cap-add=NET_ADMIN --security-opt seccomp=unconfined"
+LABEL ENV_REQUEST="FORTIVPN_PASSWD,ALLOW_INSECURE,FORTIVPN_SRV,FORTIVPN_USR"
+LABEL DEV_DEPENDENCIES="wget procps tree gosu openssl sudo vim xxd"
+LABEL VERSION="7.0.7.0246-VPN_ONLY-deb"
 # Now run
 EXPOSE 10800
 ENTRYPOINT ["/init"]
