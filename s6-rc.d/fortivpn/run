@@ -1,9 +1,3 @@
-#!/command/with-contenv bash
-
-# thanks to https://systemd.io/CONTAINER_INTERFACE/
-
-if [[ "${container}" != "podman" ]]; then
-    echo "only support podman as container runtime, please do not use docker" && /run/s6/basedir/bin/halt && exit 1
-else
-    /usr/bin/expect /fortirun.expect
-fi
+#!/command/execlineb -P
+with-contenv
+/usr/bin/go-fortivpn-daemon

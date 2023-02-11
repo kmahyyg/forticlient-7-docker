@@ -1,3 +1,13 @@
+FROM golang:1.20-bullseye AS gobuilder
+WORKDIR /codes
+ENV CGO_ENABLED=0
+ADD gosrc /codes/gosrc/
+WORKDIR /codes/gosrc
+RUN go mod download && \
+    go mod tidy && \
+    go build -o go-fortivpn-daemon -trimpath -ldflags='-s -w' ./cmd/main.go
+
+
 FROM debian:stable
 # Author Notes
 LABEL ARCH="amd64"
@@ -14,7 +24,7 @@ ENV S6_KEEP_ENV=1
 WORKDIR /tmp
 # Installation of Software
 RUN apt update -y && \
-    apt install curl gnupg2 gzip xz-utils expect ca-certificates iproute2 -y && \
+    apt install curl gnupg2 gzip xz-utils ca-certificates iproute2 -y && \
     curl -L -O https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-noarch.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && rm /tmp/s6-overlay-noarch.tar.xz && \
     curl -L -O https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-x86_64.tar.xz && \
@@ -29,12 +39,12 @@ RUN apt update -y && \
     mv /tmp/gost-linux-amd64-2.11.5 /usr/bin/gost && \
     chmod +x /usr/bin/gost
 # Now go ahead, add service script
-ADD fortirun.expect /
+COPY --from=gobuilder /codes/go-fortivpn-daemon /usr/bin/go-fortivpn-daemon
 ADD resolv.conf /etc/resolv.conf
 ADD s6-rc.d/fortivpn /etc/s6-overlay/s6-rc.d/fortivpn
 ADD s6-rc.d/gost /etc/s6-overlay/s6-rc.d/gost
 ADD s6-rc.d/user/contents.d/gost /etc/s6-overlay/s6-rc.d/user/contents.d/gost
-RUN chmod +x /fortirun.expect
+RUN chmod +x /usr/bin/go-fortivpn-daemon
 # Now run
 EXPOSE 10800
 ENTRYPOINT ["/init"]
