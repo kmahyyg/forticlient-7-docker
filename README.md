@@ -29,7 +29,7 @@ Note: Currently, it just meet my personal needs, you should modify `fortirun.exp
 
 2FA authentication may not be supported. Possibly, you could read a file contains current TOTP and modify `fortirun.expect` to read it.
 
-So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN -i -t -p 10080:10080 ghcr.io/kmahyyg/fortivpn:7`
+So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN --security-opt "seccomp=unconfined" -i -t -p 10080:10080 --dns=none ghcr.io/kmahyyg/fortivpn:7`
 
 ## Credit
 

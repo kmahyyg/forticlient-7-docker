@@ -1,3 +1,2 @@
-#!/command/execlineb -P
-with-contenv
+#!/command/with-contenv bash
 /usr/bin/gost -L "socks5+tls://${GOST_USERNAME}:${GOST_PASSWD}@0.0.0.0:10800"
