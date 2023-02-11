@@ -137,9 +137,11 @@ func main() {
 		_, err = io.Copy(os.Stderr, vpnStdErr)
 		if errors.Is(err, io.EOF) {
 			return
-		} else {
+		} else if err != nil {
 			log.Println("Error for StdoErr Redirect:", err)
+			return
 		}
+		return
 	}()
 	// start new process
 	err = vpnProg.Start()
