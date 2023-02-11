@@ -1,4 +1,8 @@
-# Forticlient 7 VPN Only Docker
+# Forticlient 7 VPN Only - Podman
+
+**Note: due to limitation of Forticlient implementation and Docker hardcoded bind-mount behaviour, this image should only be run using Podman.**
+
+**Note: this script will detect container internal environment, and will refuse to execute if NOT podman.**
 
 ## Usage
 
@@ -10,12 +14,14 @@ Copy and Modify `.env.example` to `.env` then set the following environment vari
 |`ALLOW_INSECURE`| Auto-Answer Allow Insecure CA|
 |`FORTIVPN_SRV`| Server Address (host:port) |
 |`FORTIVPN_USR`| VPN Username |
+|`GOST_USERNAME`| Gost Username |
+|`GOST_PASSWORD`| Gost Password |
 
-When starting your container at the very beginning, add `--env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
+When starting your container at the very beginning, add `--dns=none --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
 
 No external volume is required. This container only works for AMD64, since FortiNet does NOT offer other architecture.
 
-SOCKS5 proxy is exposed on 10080 port, without any authentication. Please do NOT expose it on public internet.
+SOCKS5 proxy is exposed on 10080 port, with authentication and TLS encryption. Please use Gost v2 to connect and transfer it to plain text SOCKS5 on your local host to ensure your safety.
 
 After it works, just go access network via socks5 10080, `-p 10080:10080`.
 
@@ -23,14 +29,14 @@ Note: Currently, it just meet my personal needs, you should modify `fortirun.exp
 
 2FA authentication may not be supported. Possibly, you could read a file contains current TOTP and modify `fortirun.expect` to read it.
 
-So finally your command should be like: `sudo docker run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN -i -t -p 10080:10080 kmahyyg/fortivpn`
+So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN -i -t -p 10080:10080 ghcr.io/kmahyyg/fortivpn:7`
 
 ## Credit
 
 - FortiClient made possible by Fortinet, URL: https://www.fortinet.com/support/product-downloads#vpn
 - S6-Overlay from https://github.com/just-containers/s6-overlay
 - GOSU from https://github.com/tianon/gosu 
-- GOST from https://github.com/ginuerzh/gost
+- GOST v2 from https://github.com/ginuerzh/gost , v3 from https://github.com/go-gost/gost
 
 ## License
 
@@ -38,13 +44,9 @@ So finally your command should be like: `sudo docker run -d --env-file .env --de
 
 Copyright © 2023 Fortinet, Inc. All rights reserved. Fortinet®, FortiGate®, FortiCare® and FortiGuard®, and certain other marks are registered trademarks of Fortinet, Inc., and other Fortinet names herein may also be registered and/or common law trademarks of Fortinet. All other product or company names may be trademarks of their respective owners. Performance and other metrics contained herein were attained in internal lab tests under ideal conditions, and actual performance and other results may vary. Network variables, different network environments and other conditions may affect performance results. Nothing herein represents any binding commitment by Fortinet, and Fortinet disclaims all warranties, whether express or implied, except to the extent Fortinet enters a binding written contract, signed by Fortinet’s General Counsel, with a purchase that expressly warrants that the identified product will perform according to certain expressly-identified performance metrics and, in such event, only the specific performance metrics expressly identified in such binding written contract shall be binding on Fortinet. For absolute clarity, any such warranty will be limited to performance in the same ideal conditions as in Fortinet’s internal lab tests. Fortinet disclaims in full any covenants, representations, and guarantees pursuant hereto, whether express or implied. Fortinet reserves the right to change, modify, transfer, or otherwise revise this publication without notice, and the most current version of the publication shall be applicable.
 
-### Docker
+### Podman Resources
 
-Docker, Inc. (“Docker”) trademarks, service marks, logos and designs, as well as other works of authorship that are eligible for copyright protection (collectively termed “Marks”) are valuable assets that Docker needs to protect. Docker does not permit all uses of Docker Marks, but Docker has posted these Trademark Usage Guidelines (“Guidelines”) to assist you in properly using our Marks in specific cases that we permit. The strength of our Marks depends, in part, upon consistent and appropriate use. We ask that you properly use and credit our Marks in accordance with these Guidelines. We reserve the right to change these Guidelines at any time and solely at our discretion.
-
-### Docker Resources
-
- forticlient7-docker
+ forticlient-7-podman
  Copyright (C) 2023  Patmeow Limited
  
  This program is free software: you can redistribute it and/or modify

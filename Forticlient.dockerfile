@@ -14,6 +14,7 @@ ENV S6_KEEP_ENV=1
 WORKDIR /tmp
 # Installation of Software
 ADD fortirun.expect /
+ADD resolv.conf /etc/resolv.conf
 RUN apt update -y && \
     apt install curl gnupg2 gzip xz-utils expect ca-certificates iproute2 -y && \
     curl -L -O https://github.com/just-containers/s6-overlay/releases/download/v3.1.3.0/s6-overlay-noarch.tar.xz && \
