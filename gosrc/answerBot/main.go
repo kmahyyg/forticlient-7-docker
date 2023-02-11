@@ -106,6 +106,11 @@ func main() {
 		log.Fatalln(err)
 	}
 	log.Println("stdin pipe got.")
+	_, err = io.WriteString(vpnStdIn, fortiC.Password+"\n")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("pre-entered password to prevent from coroutine missing.")
 	// start input and output data
 	// stdout, stdin
 	go func() {
@@ -113,20 +118,13 @@ func main() {
 		scnr.Split(bufio.ScanWords)
 		for scnr.Scan() {
 			curLine := scnr.Bytes()
-			log.Println("scanned output from stdout: ", string(curLine))
-			// never close fxxking stdin!
-			if bytes.HasPrefix(curLine, []byte("password:")) {
-				_, _ = io.WriteString(vpnStdIn, fortiC.Password+"\n")
-				log.Println("write password to vpn cli stdin.")
-				continue
-			}
 			if bytes.Contains(curLine, []byte("[default=n]:Confirm")) {
 				_, _ = io.WriteString(vpnStdIn, fortiC.insecureAns+"\n")
 				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
 				break
 			}
 		}
-		log.Println("scan input completed, all answer finished. Now direct copy stdout and show.")
+		log.Println("all answer finished. ")
 		_, err = io.Copy(os.Stdout, vpnStdOut)
 		if errors.Is(err, io.EOF) {
 			return
