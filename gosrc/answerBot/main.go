@@ -86,7 +86,9 @@ func main() {
 	if err := fortiC.Init(); err != nil {
 		log.Fatalln(err)
 	}
-	log.Printf("config: %v \n", *fortiC)
+
+	// Debug: log.Printf("config: %+v \n", *fortiC)
+
 	// new subprocess
 	vpnProg := exec.Command(fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
 	vpnStdErr, err := vpnProg.StderrPipe()
