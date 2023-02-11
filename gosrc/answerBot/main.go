@@ -91,42 +91,39 @@ func main() {
 	log.Printf("config: %+v \n", *fortiC)
 	// new subprocess
 	vpnProg := exec.Command(fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
+	// stderr
 	vpnStdErr, err := vpnProg.StderrPipe()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Println("stderr pipe got.")
-	vpnStdOut, err := vpnProg.StdoutPipe()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("stdout pipe got.")
-	vpnStdIn, err := vpnProg.StdinPipe()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("stdin pipe got.")
-	_, err = io.WriteString(vpnStdIn, fortiC.Password+"\n")
+	// stdin
+	stdInPipeR, stdInPipeW := io.Pipe()
+	vpnProg.Stdin = stdInPipeR
+	_, err = io.WriteString(stdInPipeW, fortiC.Password+"\n")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Println("pre-entered password to prevent from coroutine missing.")
+	// stdout
+	stdOutPipeR, stdOutPipeW := io.Pipe()
+	vpnProg.Stdout = stdOutPipeW
 	// start input and output data
 	// stdout, stdin
 	go func() {
-		scnr := bufio.NewScanner(vpnStdOut)
+		scnr := bufio.NewScanner(stdOutPipeR)
 		scnr.Split(bufio.ScanWords)
 		for scnr.Scan() {
 			curLine := scnr.Bytes()
 			log.Println("from stdout scanner: ", string(curLine))
 			if bytes.Contains(curLine, []byte("[default=n]:Confirm")) {
-				_, _ = io.WriteString(vpnStdIn, fortiC.insecureAns+"\n")
+				_, _ = io.WriteString(stdInPipeW, fortiC.insecureAns+"\n")
 				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
 				break
 			}
 		}
 		log.Println("all answer finished. ")
-		_, err = io.Copy(os.Stdout, vpnStdOut)
+		_, err = io.Copy(os.Stdout, stdOutPipeR)
 		if errors.Is(err, io.EOF) {
 			return
 		} else {
