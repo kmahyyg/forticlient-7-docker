@@ -1,3 +1,5 @@
+//go:build unix
+
 package main
 
 import (
@@ -5,6 +7,7 @@ import (
 	"bytes"
 	_ "embed"
 	"errors"
+	"github.com/creack/pty"
 	"io"
 	"log"
 	"os"
@@ -91,58 +94,46 @@ func main() {
 	log.Printf("config: %+v \n", *fortiC)
 	// new subprocess
 	vpnProg := exec.Command(fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
-	// stderr
-	stdErrPipeR, stdErrPipeW := io.Pipe()
-	vpnProg.Stderr = stdErrPipeW
-	defer stdErrPipeR.Close()
-	defer stdErrPipeW.Close()
-	// stdin
-	stdInPipeR, stdInPipeW := io.Pipe()
-	vpnProg.Stdin = stdInPipeR
-	defer stdInPipeW.Close()
-	defer stdInPipeR.Close()
-	// stdout
-	stdOutPipeR, stdOutPipeW := io.Pipe()
-	vpnProg.Stdout = stdOutPipeW
-	defer stdOutPipeW.Close()
-	defer stdOutPipeR.Close()
+	vpnProg.SysProcAttr = &syscall.SysProcAttr{
+		Setsid:  true,
+		Setctty: true,
+	}
+	ptyInst, ttyInst, err := pty.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer ttyInst.Close()
+	defer ptyInst.Close()
 	// start input and output data
+	vpnProg.Stdin = ttyInst
+	vpnProg.Stdout = ttyInst
+	vpnProg.Stderr = ttyInst
 	// stdout, stdin
 	go func() {
-		_, err := stdInPipeW.Write([]byte(fortiC.Password + "\n"))
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Println("pre-entered password to prevent from coroutine missing.")
-		scnr := bufio.NewScanner(stdOutPipeR)
+		scnr := bufio.NewScanner(ptyInst)
 		scnr.Split(bufio.ScanWords)
 		for scnr.Scan() {
 			curLine := scnr.Bytes()
-			log.Println("from stdout scanner: ", string(curLine))
+			log.Println("scanned output from stdout: ", string(curLine))
+			// never close fxxking stdin!
+			if bytes.HasPrefix(curLine, []byte("password:")) {
+				_, _ = io.WriteString(ptyInst, fortiC.Password+"\n")
+				log.Println("write password to vpn cli stdin.")
+				continue
+			}
 			if bytes.Contains(curLine, []byte("[default=n]:Confirm")) {
-				_, _ = stdInPipeW.Write([]byte(fortiC.insecureAns + "\n"))
+				_, _ = io.WriteString(ptyInst, fortiC.insecureAns+"\n")
 				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
 				break
 			}
 		}
-		log.Println("all answer finished. ")
-		_, err = io.Copy(os.Stdout, stdOutPipeR)
+		log.Println("scan input completed, all answer finished. Now direct copy stdout and show.")
+		_, err = io.Copy(os.Stdout, ptyInst)
 		if errors.Is(err, io.EOF) {
 			return
 		} else {
 			log.Println("Error for Stdout Redirect:", err)
 		}
-	}()
-	// stderr
-	go func() {
-		_, err = io.Copy(os.Stderr, stdErrPipeR)
-		if errors.Is(err, io.EOF) {
-			return
-		} else if err != nil {
-			log.Println("Error for StdoErr Redirect:", err)
-			return
-		}
-		return
 	}()
 	// start new process
 	err = vpnProg.Start()
