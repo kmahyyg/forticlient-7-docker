@@ -5,13 +5,11 @@ import (
 	"bytes"
 	_ "embed"
 	"errors"
-	"github.com/alessio/shellescape"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
-	"strings"
 	"syscall"
 )
 
@@ -93,7 +91,8 @@ func main() {
 	log.Printf("config: %+v \n", *fortiC)
 
 	// new subprocess
-	vpnProg := exec.Command("/bin/bash", "-i", "-c", shellescape.Quote(strings.Join([]string{fortiC.BinaryPath, "-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p"}, " ")))
+	vpnProg := exec.Command("/bin/bash", "-i", "-c", fortiC.BinaryPath,
+		"-s", fortiC.ServerAddr, "-u", fortiC.Username, "-p")
 	vpnStdErr, err := vpnProg.StderrPipe()
 	if err != nil {
 		log.Fatalln(err)
