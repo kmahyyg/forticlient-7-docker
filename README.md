@@ -35,6 +35,10 @@ Note: Currently, it just meet my personal needs, you should modify `fortirun.exp
 
 So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN --security-opt "seccomp=unconfined" -i -t -p 10800:10800 --dns=none ghcr.io/kmahyyg/fortivpn:7`
 
+After that, download GOST v2 and run `gost -L socks5://127.0.0.1:1080 -F socks5+tls://${GOST_USERNAME}:${GOST_PASSWD}@<REMOTE MACHINE IP>:10800`, then set browser socks5 proxy to localhost:1080 or use smart traffic division, enjoy.
+
+For your reference, a single container with no workload will cost 64M RAM and 0.1% CPU.
+
 ## Credit
 
 - FortiClient made possible by Fortinet, URL: https://www.fortinet.com/support/product-downloads#vpn
