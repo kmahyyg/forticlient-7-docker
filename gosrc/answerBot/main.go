@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 )
 
 var (
@@ -144,5 +145,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println("sleep 5 seconds for cleanup.")
+	time.Sleep(5 * time.Second)
 	log.Println("vpn process killed. exit.")
 }
