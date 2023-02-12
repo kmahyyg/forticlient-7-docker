@@ -36,18 +36,19 @@ RUN apt update -y && \
     mv /tmp/gost-linux-amd64-2.11.5 /usr/bin/gost && \
     chmod +x /usr/bin/gost
 # Now go ahead, add service script
-COPY --from=gobuilder /codes/gosrc/go-fortivpn-daemon /usr/bin/go-fortivpn-daemon
 ADD resolv.conf /etc/resolv.conf
 ADD s6-rc.d/fortivpn /etc/s6-overlay/s6-rc.d/fortivpn
 ADD s6-rc.d/gost /etc/s6-overlay/s6-rc.d/gost
 ADD s6-rc.d/user/contents.d/gost /etc/s6-overlay/s6-rc.d/user/contents.d/gost
-RUN chmod +x /usr/bin/go-fortivpn-daemon
 # Finally notes
 LABEL org.opencontainers.image.source="https://github.com/kmahyyg/forticlient-7-podman"
 LABEL PRIVILEGE_REQUEST="--device=/dev/net/tun --cap-add=NET_ADMIN --security-opt seccomp=unconfined"
 LABEL ENV_REQUEST="FORTIVPN_PASSWD,ALLOW_INSECURE,FORTIVPN_SRV,FORTIVPN_USR"
 LABEL DEV_DEPENDENCIES="wget procps tree gosu openssl sudo vim xxd"
 LABEL VERSION="7.0.7.0246-VPN_ONLY-deb"
+# Modified Daemon
+COPY --from=gobuilder /codes/gosrc/go-fortivpn-daemon /usr/bin/go-fortivpn-daemon
+RUN chmod +x /usr/bin/go-fortivpn-daemon
 # Now run
 EXPOSE 10800
 ENTRYPOINT ["/init"]
