@@ -29,9 +29,9 @@ SOCKS5 proxy is exposed on 10800 port, with authentication and TLS encryption. P
 
 After it works, just go access network via socks5 10800, `-p 10800:10800`.
 
-Note: Currently, it just meet my personal needs, you should modify `fortirun.expect` if you need certificate authentication.
+Note: Currently, it just meet my personal needs, you should modify `gosrc/answerBot/main.go` if you need certificate authentication.
 
-2FA authentication may not be supported. Possibly, you could read a file contains current TOTP and modify `fortirun.expect` to read it.
+2FA authentication may not be supported. Possibly, you could read a file contains current TOTP and modify `gosrc/answerBot/main.go` to read it and then auto-input TOTP code to satisfy your needs.
 
 So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN --security-opt "seccomp=unconfined" -i -t -p 10800:10800 --dns=none ghcr.io/kmahyyg/fortivpn:7`
 
