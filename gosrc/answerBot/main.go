@@ -1,16 +1,14 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	_ "embed"
 	"errors"
-	"github.com/alessio/shellescape"
-	"io"
+	expect "github.com/Netflix/go-expect"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -91,92 +89,58 @@ func main() {
 	// Debug:
 	log.Printf("config: %+v \n", *fortiC)
 
+	// pre-flight check and prepare
+	consoleProg, err := expect.NewConsole(expect.WithStdout(os.Stdout), expect.WithStdin(os.Stdin))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer consoleProg.Close()
+
 	// new subprocess
-	vpnProg := &exec.Cmd{
-		Path: "/bin/bash",
-		Args: []string{"-i", "-c", shellescape.QuoteCommand([]string{fortiC.BinaryPath, "-u", fortiC.Username, "-s", fortiC.ServerAddr, "-p"})},
-	}
-	vpnStdErr, err := vpnProg.StderrPipe()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("stderr pipe got.")
-	vpnStdOut, err := vpnProg.StdoutPipe()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("stdout pipe got.")
-	vpnStdIn, err := vpnProg.StdinPipe()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("stdin pipe got.")
-	_, err = io.WriteString(vpnStdIn, fortiC.Password+"\n")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("pre-entered password to prevent from coroutine missing.")
-	// start input and output data
-	// stdout, stdin
+	vpnCmd := exec.Command(fortiC.BinaryPath, "-u", fortiC.Username, "-s", fortiC.ServerAddr, "-p")
+	vpnCmd.Stdin = consoleProg.Tty()
+	vpnCmd.Stderr = consoleProg.Tty()
+	vpnCmd.Stdout = consoleProg.Tty()
+
 	go func() {
-		scnr := bufio.NewScanner(vpnStdOut)
-		scnr.Split(bufio.ScanWords)
-		for scnr.Scan() {
-			curLine := scnr.Bytes()
-			log.Println("scanned from stdout: ", string(curLine))
-			// never close fxxking stdin!
-			if bytes.HasPrefix(curLine, []byte("password:")) {
-				_, _ = io.WriteString(vpnStdIn, fortiC.Password+"\n")
-				log.Println("write password to vpn cli stdin.")
-				continue
-			}
-			if bytes.Contains(curLine, []byte("Confirm (y/n) [default=n]:")) {
-				_, _ = io.WriteString(vpnStdIn, fortiC.insecureAns+"\n")
-				log.Printf("answered %s to cert insecure warning. \n", fortiC.insecureAns)
+		expectPwd := expect.String("password:")
+		expectCert := expect.String("Confirm (y/n) [default=n]:")
+		for {
+			data, err := consoleProg.Expect(expectPwd, expectCert)
+			if err != nil {
+				log.Println("expect err: ", err)
 				break
 			}
+			if strings.Contains(data, "password:") {
+				_, _ = consoleProg.SendLine(fortiC.Password)
+				continue
+			} else if strings.Contains(data, "Confirm (y/n) [default=n]:") {
+				_, _ = consoleProg.SendLine(fortiC.insecureAns)
+				break
+			} else {
+				continue
+			}
 		}
-		log.Println("all answer finished. ")
-		_, err = io.Copy(os.Stdout, vpnStdOut)
-		if errors.Is(err, io.EOF) {
-			return
-		} else {
-			log.Println("Error for Stdout Redirect:", err)
-		}
+		consoleProg.ExpectEOF()
 	}()
-	// stderr
-	go func() {
-		_, err = io.Copy(os.Stderr, vpnStdErr)
-		if errors.Is(err, io.EOF) {
-			return
-		} else if err != nil {
-			log.Println("Error for StdErr Redirect:", err)
-			return
-		}
-		return
-	}()
-	// start new process
-	err = vpnProg.Start()
+
+	err = vpnCmd.Start()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println("vpn process started.")
 	// handle signal
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
 	// handle exit
 	// wait until close
 	go func() {
-		err := vpnProg.Wait()
-		if err != nil {
-			log.Println("vpnprog unexpected exit, err: ", err)
-		}
-		log.Println("vpnprog exit unexpectedly.")
+		err := vpnCmd.Wait()
+		log.Println("vpnprog exit unexpectedly: ", err)
 		sigChan <- syscall.SIGTERM
 	}()
 	<-sigChan
 	log.Println("received signal of killing vpn process, now clean up.")
-	err = vpnProg.Process.Kill()
+	err = vpnCmd.Process.Kill()
 	if err != nil {
 		log.Println(err)
 	}
