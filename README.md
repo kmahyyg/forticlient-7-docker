@@ -1,8 +1,12 @@
 # Forticlient 7 VPN Only - Podman
 
-**Note: due to limitation of Forticlient implementation and Docker hardcoded bind-mount behaviour, this image should only be run using Podman.**
+**Note: Due to limitation of Forticlient implementation and Docker hardcoded bind-mount behaviour, this image should only be run using Podman.**
 
-**Note: this script will detect container internal environment, and will refuse to execute if NOT podman.**
+**Note: This image will detect container internal environment, and will refuse to execute if NOT podman.**
+
+**Note: Forticlient requires a TTY to work, so getting update from stdout may miss data. Be careful when you automate something.**
+
+**Note: You should disable outside network manager for newly created virtual interface to prevent unexpected issue.**
 
 ## Usage
 
