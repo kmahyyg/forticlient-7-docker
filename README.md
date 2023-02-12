@@ -25,15 +25,15 @@ When starting your container at the very beginning, add `--dns=none --env-file .
 
 No external volume is required. This container only works for AMD64, since FortiNet does NOT offer other architecture.
 
-SOCKS5 proxy is exposed on 10080 port, with authentication and TLS encryption. Please use Gost v2 to connect and transfer it to plain text SOCKS5 on your local host to ensure your safety.
+SOCKS5 proxy is exposed on 10800 port, with authentication and TLS encryption. Please use Gost v2 to connect and transfer it to plain text SOCKS5 on your local host to ensure your safety.
 
-After it works, just go access network via socks5 10080, `-p 10080:10080`.
+After it works, just go access network via socks5 10800, `-p 10800:10800`.
 
 Note: Currently, it just meet my personal needs, you should modify `fortirun.expect` if you need certificate authentication.
 
 2FA authentication may not be supported. Possibly, you could read a file contains current TOTP and modify `fortirun.expect` to read it.
 
-So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN --security-opt "seccomp=unconfined" -i -t -p 10080:10080 --dns=none ghcr.io/kmahyyg/fortivpn:7`
+So finally your command should be like: `sudo podman run -d --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN --security-opt "seccomp=unconfined" -i -t -p 10800:10800 --dns=none ghcr.io/kmahyyg/fortivpn:7`
 
 ## Credit
 
