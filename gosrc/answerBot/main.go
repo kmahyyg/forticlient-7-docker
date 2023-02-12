@@ -136,11 +136,11 @@ func main() {
 	go func() {
 		err := vpnCmd.Wait()
 		log.Println("vpnprog exit unexpectedly: ", err)
-		sigChan <- syscall.SIGTERM
+		sigChan <- syscall.SIGINT
 	}()
 	<-sigChan
 	log.Println("received signal of killing vpn process, now clean up.")
-	err = vpnCmd.Process.Kill()
+	err = vpnCmd.Process.Signal(syscall.SIGINT)
 	if err != nil {
 		log.Println(err)
 	}
