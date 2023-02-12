@@ -92,9 +92,10 @@ func main() {
 	log.Printf("config: %+v \n", *fortiC)
 
 	// new subprocess
-	vpnProg := exec.Command("/bin/bash", "-i", "-c", "--", fortiC.BinaryPath,
-		shellescape.QuoteCommand([]string{"-s", fortiC.ServerAddr}),
-		shellescape.QuoteCommand([]string{"-u", fortiC.Username}), "-p")
+	vpnProg := &exec.Cmd{
+		Path: "/bin/bash",
+		Args: []string{"-i", "-c", shellescape.QuoteCommand([]string{fortiC.BinaryPath, "-u", fortiC.Username, "-s", fortiC.ServerAddr, "-p"})},
+	}
 	vpnStdErr, err := vpnProg.StderrPipe()
 	if err != nil {
 		log.Fatalln(err)
