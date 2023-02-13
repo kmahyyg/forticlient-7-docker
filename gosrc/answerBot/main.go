@@ -138,8 +138,11 @@ func main() {
 		err := vpnCmd.Wait()
 		if err != nil {
 			log.Println("vpnprog exit unexpectedly: ", err)
+		} else {
+			// unpredicted exit, but wait returns nothing.
+			log.Println("vpnprog got signal to exit, now exited.")
+			sigChan <- syscall.SIGABRT
 		}
-		log.Println("vpnprog got signal to exit, now exited.")
 	}()
 	<-sigChan
 	log.Println("received signal of killing vpn process, now clean up.")

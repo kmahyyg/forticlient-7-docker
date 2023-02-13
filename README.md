@@ -8,6 +8,8 @@
 
 **Note: You should disable outside network manager for newly created virtual interface to prevent unexpected issue.**
 
+If your network environment is unstable, please restart vpn container and check log, since Linux version is so crappy, single packet fault may lead to disconnect.
+
 ## Usage
 
 Copy and Modify `.env.example` to `.env` then set the following environment variable before you start: 
