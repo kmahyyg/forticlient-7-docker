@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 TMPDIR=$(mktemp -d)
 CURDIR=$(pwd)
