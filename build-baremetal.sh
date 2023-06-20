@@ -6,5 +6,5 @@ export GOARCH=amd64
 
 cd ./gosrc
 git describe --long --dirty --tags --always | tr -d '\n' > ./bareMetalAnswerBot/version.txt
-go build -o ../bareMetalAssets/usr/local/fortivpn_autobot/go-fortivpn-daemon -trimpath -ldflags='-s -w' ./bareMetalAnswerBot/main.go
-cd ../bareMetalAssets
+go build -o ../fortivpn-autobot/usr/local/fortivpn_autobot/go-fortivpn-daemon -trimpath -ldflags='-s -w' ./bareMetalAnswerBot/main.go
+cd ../fortivpn-autobot
