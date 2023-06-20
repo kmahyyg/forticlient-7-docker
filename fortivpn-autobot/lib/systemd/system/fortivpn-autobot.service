@@ -5,7 +5,6 @@ Requires=network-online.target network.target
 [Service]
 User=root
 Group=root
-StandardInput=tty-force
 WorkingDirectory=/etc/fortivpn_autobot
 EnvironmentFile=/etc/fortivpn_autobot/default
 Type=exec

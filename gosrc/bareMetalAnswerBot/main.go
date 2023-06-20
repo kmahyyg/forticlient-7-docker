@@ -83,7 +83,7 @@ func main() {
 	}
 
 	// Debug:
-	log.Printf("config: %+v \n", *fortiC)
+	// log.Printf("config: %+v \n", *fortiC)
 
 	// pre-flight check and prepare
 	consoleProg, err := expect.NewConsole(expect.WithStdout(os.Stdout), expect.WithStdin(os.Stdin))
