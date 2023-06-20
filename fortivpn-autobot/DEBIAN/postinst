@@ -1,0 +1,6 @@
+#!/bin/bash
+/usr/bin/systemctl enable fortivpn-autobot
+/usr/bin/chmod +x /usr/local/fortivpn_autobot/prestart.sh
+/usr/bin/chmod +x /usr/local/fortivpn_autobot/go-fortivpn-daemon
+/usr/bin/echo "Please change config in /etc/fortivpn_autobot/default before you proceed."
+/usr/bin/echo "After your config has been updated, please run systemctl daemon-reload then start service."

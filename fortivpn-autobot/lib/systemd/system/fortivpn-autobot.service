@@ -13,6 +13,7 @@ ExecStartPre=/bin/bash -l /usr/local/fortivpn_autobot/prestart.sh
 ExecStart=/usr/local/fortivpn_autobot/go-fortivpn-daemon
 ExecStop=/usr/bin/kill -HUP $MAINPID
 Restart=always
+RestartSec=30
 
 [Install]
 RequiredBy=multi-user.target
