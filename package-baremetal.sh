@@ -15,4 +15,3 @@ cd ${TMPDIR}
 tar czvf ${CURDIR}/bin/fortiauto_${CURDATE}.tar.gz .
 cd ${CURDIR}
 rm -rf ${TMPDIR}
-
