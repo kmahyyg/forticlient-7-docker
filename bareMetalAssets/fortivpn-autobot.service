@@ -1,0 +1,18 @@
+[Unit]
+Description=Forticlient VPN Autorun and Answer Password
+Requires=network-online.target network.target
+
+[Service]
+User=root
+Group=root
+StandardInput=tty-force
+WorkingDirectory=/etc/fortivpn_autobot
+EnvironmentFile=/etc/fortivpn_autobot/default
+Type=exec
+ExecStartPre=/bin/bash -l /usr/local/fortivpn_autobot/prestart.sh
+ExecStart=/usr/local/fortivpn_autobot/go-fortivpn-daemon
+ExecStop=/usr/bin/kill -HUP $MAINPID
+Restart=always
+
+[Install]
+RequiredBy=multi-user.target
