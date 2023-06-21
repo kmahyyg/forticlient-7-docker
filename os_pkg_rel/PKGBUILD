@@ -1,0 +1,18 @@
+# Maintainer: Patrick Young <16604643+kmahyyg@users[dot]noreply[dot]github[dot]com>
+# Need archive/installer to work.
+pkgname=fortivpn-autobot
+pkgver=0.1.3
+pkgrel=1
+pkgdesc='FortiClient VPN AutoStart and Always On Bot'
+depends=('systemd')
+arch=('x86_64')
+license=('AGPL3')
+optdepends=('forticlient-vpn: VPN-Only Forticlient, choose one as you want from AUR'
+            'forticlient: Full-featured Forticlient, choose one as you want from AUR')
+sources=('git+https://github.com/kmahyyg/forticlient-7-podman.git')
+backup=('etc/fortivpn-autobot/default')
+install='fortivpn-autobot.install'
+
+package() {
+    install -Dm644 "${pkgdir}/lib/systemd/system/fortivpn-autobot.service" "${pkgdir}/usr/lib/systemd/system/fortivpn-autobot.service"
+}

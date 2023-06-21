@@ -2,8 +2,10 @@
 .vscode/
 .idea/
 version.txt
-bin/
-fortivpn-autobot/usr/local/fortivpn_autobot/go-fortivpn-daemon
+go-fortivpn-daemon
 *.tar.gz
 *.tar.xz
 *.deb
+*.pkg.zst
+*.pkg.xz
+*.pkg.gz
