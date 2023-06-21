@@ -1,13 +1,13 @@
 pre_install() {
     echo "Stop fortivpn-autobot Service."
     systemctl daemon-reload
-    systemctl stop forticlient || true
-    systemctl stop fortivpn-autobot || true
+    systemctl stop forticlient 2>/dev/null || true
+    systemctl stop fortivpn-autobot 2>/dev/null || true
 }
 
 post_install() {
     echo "Please change config in /etc/fortivpn_autobot/default before you proceed."
-    echo 'Old config is backed up in /etc/fortivpn_autobot/default.bak'
+    echo 'Old config is backed up in /etc/fortivpn_autobot/default.pacsave'
     echo 'After your config has been updated, please run "systemctl daemon-reload" then start service.'
     systemctl daemon-reload
     systemctl start forticlient || true
