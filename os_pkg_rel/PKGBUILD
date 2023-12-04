@@ -2,7 +2,7 @@
 # Need archive/installer to work. You must be from Golang source code yourself.
 # Create src folder and put tar.gz inside.
 pkgname=fortivpn-autobot
-pkgver=0.1.3
+pkgver=1.0.1
 pkgrel=1
 pkgdesc='FortiClient VPN AutoStart and Always On Bot'
 depends=('systemd' 'bash')

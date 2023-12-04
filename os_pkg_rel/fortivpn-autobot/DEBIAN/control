@@ -1,6 +1,6 @@
 Package: fortivpn-autobot
 Architecture: amd64
-Version: 1.0.0-r20230620
+Version: 1.0.1-r20231205
 Depends: forticlient
 Maintainer: Patrick Yang <16604643+kmahyyg@users.noreply.github.com>
 Description: Automated Bot for starting FortiClient VPN in a fully

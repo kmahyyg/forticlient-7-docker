@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"errors"
 	expect "github.com/Netflix/go-expect"
+	"github.com/pquerna/otp/totp"
 	"log"
 	"os"
 	"os/exec"
@@ -55,6 +56,7 @@ func (fc *fortiConfig) Init() error {
 	fc.Username = os.Getenv("FORTIVPN_USR")
 	fc.ServerAddr = os.Getenv("FORTIVPN_SRV")
 	fc.Password = os.Getenv("FORTIVPN_PASSWD")
+	fc.TOTP = os.Getenv("FORTIVPN_TOTP_SECRET")
 	fc.AllowInsecure = func() bool {
 		if os.Getenv("ALLOW_INSECURE") != "" {
 			fc.insecureAns = "y"
@@ -69,6 +71,19 @@ func (fc *fortiConfig) Init() error {
 	}
 	log.Println("fc init done.")
 	return nil
+}
+
+func (fc *fortiConfig) GetTotpCode() (string, error) {
+	if fc.TOTP == "" {
+		panic("TOTP secret not set")
+	}
+	return totp.GenerateCodeCustom(fc.TOTP, time.Now(), totp.ValidateOpts{
+		Period: 60,
+	})
+}
+
+func (fc *fortiConfig) IsMFAEnabled() bool {
+	return fc.TOTP != ""
 }
 
 func init() {
@@ -112,6 +127,22 @@ func main() {
 				continue
 			} else if strings.Contains(data, "Confirm (y/n) [default=n]:") {
 				_, _ = consoleProg.SendLine(fortiC.insecureAns)
+				if fortiC.IsMFAEnabled() {
+					continue
+				} else {
+					break
+				}
+			} else if strings.Contains(data, "FortiToken:") {
+				if fortiC.IsMFAEnabled() {
+					totpCode, err := fortiC.GetTotpCode()
+					log.Println("Current TOTP Code: ", totpCode)
+					if err != nil {
+						panic(err)
+					}
+					_, _ = consoleProg.SendLine(totpCode)
+				} else {
+					panic("MFA Secret not set, but this server requires MFA.")
+				}
 				break
 			} else {
 				continue

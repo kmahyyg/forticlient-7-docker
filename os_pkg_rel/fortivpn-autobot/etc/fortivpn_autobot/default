@@ -3,3 +3,4 @@ FORTIVPN_SRV=https://ip:port
 FORTIVPN_USR=
 FORTIVPN_PASSWD=
 FORTIVPN_CLI="/opt/forticlient/vpn"
+FORTIVPN_TOTP_SECRET=
