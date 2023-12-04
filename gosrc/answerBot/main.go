@@ -132,25 +132,28 @@ func main() {
 				continue
 			} else if strings.Contains(data, "Confirm (y/n) [default=n]:") {
 				_, _ = consoleProg.SendLine(fortiC.insecureAns)
-				if fortiC.IsMFAEnabled() {
-					continue
-				} else {
-					break
-				}
-			} else if strings.Contains(data, "FortiToken:") {
-				if fortiC.IsMFAEnabled() {
-					totpCode, err := fortiC.GetTotpCode()
-					log.Println("Current TOTP Code: ", totpCode)
-					if err != nil {
-						panic(err)
-					}
-					_, _ = consoleProg.SendLine(totpCode)
-				} else {
-					panic("MFA Secret not set, but this server requires MFA.")
-				}
 				break
 			} else {
 				continue
+			}
+		}
+		if fortiC.IsMFAEnabled() {
+			expectTOTP := expect.String("FortiToken:")
+			for {
+				data, err := consoleProg.Expect(expectTOTP)
+				if err != nil {
+					log.Println("expect err: ", err)
+				}
+				if strings.Contains(data, "FortiToken:") {
+					totptkn, err := fortiC.GetTotpCode()
+					if err != nil {
+						panic(err)
+					}
+					_, _ = consoleProg.SendLine(totptkn)
+					break
+				} else {
+					continue
+				}
 			}
 		}
 		consoleProg.ExpectEOF()
