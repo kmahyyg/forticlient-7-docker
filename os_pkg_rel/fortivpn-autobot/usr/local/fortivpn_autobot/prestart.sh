@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 if [[ $(id -u) -ne 0 ]]
 then
@@ -9,4 +9,3 @@ fi
 
 modprobe tun
 mkdir -p /etc/fortivpn_autobot
-exit 0
