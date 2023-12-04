@@ -25,6 +25,8 @@ Copy and Modify `.env.example` to `.env` then set the following environment vari
 |`FORTIVPN_TOTP_SECRET`| FortiVPN TOTP Secret (Manually extract from FortiToken) |
 
 > To extract secret, check: https://jonstoler.me/blog/extracting-fortitoken-mobile-totp-secret (Make sure your time is synced)
+> For legacy Android device (Android 7.1/8.1), the uuid decryption key is: `android_id (mapped to each app) + device hardware serial number`
+> If none could be detected by app, the uuid decryption key is: `"23571113171923" repeat, until 16 chars`
 
 When starting your container at the very beginning, add `--dns=none --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
 
