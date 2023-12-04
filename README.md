@@ -22,6 +22,9 @@ Copy and Modify `.env.example` to `.env` then set the following environment vari
 |`FORTIVPN_USR`| VPN Username |
 |`GOST_USERNAME`| Gost Username |
 |`GOST_PASSWD`| Gost Password |
+|`FORTIVPN_TOTP_SECRET`| FortiVPN TOTP Secret (Manually extract from FortiToken) |
+
+> To extract secret, check: https://jonstoler.me/blog/extracting-fortitoken-mobile-totp-secret (Make sure your time is synced)
 
 When starting your container at the very beginning, add `--dns=none --env-file .env --device=/dev/net/tun --cap-add=NET_ADMIN` to prevent further issue.
 
